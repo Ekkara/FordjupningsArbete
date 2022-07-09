@@ -1,0 +1,51 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class DungeonsGeneratorScript : MonoBehaviour
+{
+    [SerializeField] GameObject floorTile, wallTile;
+    [SerializeField] int dungeonHeight, dungeonWidh;
+    [SerializeField] [Range(0, 100)] int cellSizePrecentUsage = 75;
+    Vector3 cellOffset = Vector3.zero;
+    
+    GameObject oldHolder;
+    public void GenerateDungeon()
+    {
+        if(oldHolder != null)
+        {
+            DestroyImmediate(oldHolder);
+        }
+
+
+        int[,] arr = new int[dungeonWidh, dungeonHeight];
+        for(int widthNr = 0; widthNr < dungeonWidh; widthNr++)
+        {
+            for(int heightNr = 0; heightNr < dungeonHeight; heightNr++)
+            {
+                int value = Random.Range(0, 100);
+                value = value >= cellSizePrecentUsage ? 1 : 0;
+                arr[widthNr, heightNr] = value;
+            }
+        }
+
+
+        GameObject dungeon = new GameObject("parent");
+        oldHolder = dungeon;
+        for (int widthNr = 0; widthNr < dungeonWidh; widthNr++)
+        {
+            for (int heightNr = 0; heightNr < dungeonHeight; heightNr++)
+            {
+                GameObject go = arr[widthNr, heightNr] == 1 ? wallTile :
+                    arr[widthNr, heightNr] == 0 ? floorTile :
+                    floorTile;
+
+                Vector3 offset = go.transform.position;
+                
+                go = Instantiate(go);
+                go.transform.position = cellOffset + new Vector3(widthNr, 0, heightNr) + offset;
+                go.transform.parent = dungeon.transform;
+            }
+        }
+    }
+}
